@@ -49,6 +49,20 @@
     @keyframes ripple{
       to{transform:translate(-50%,-50%) scale(6);opacity:0;}
     }
+
+    .spawn-button{
+      position:absolute;
+      bottom:10px;
+      left:50%;
+      transform:translateX(-50%);
+      padding:6px 12px;
+      border:none;
+      border-radius:6px;
+      background:#222;
+      color:#fff;
+      cursor:pointer;
+      font-size:14px;
+    }
   </style>
 </head>
 <body>
@@ -73,6 +87,7 @@
             </svg>
           </div>
         </div>
+        <button class="spawn-button" id="spawnBtn">New Bug</button>
       </div>
     </div>
   </div>
@@ -80,11 +95,36 @@
   <script>
     const beer = document.getElementById('beer');
     const bugEl = document.getElementById('bug');
+    const spawnBtn = document.getElementById('spawnBtn');
 
-    // ripple effect on bug click
-    bugEl.addEventListener('click', (e) => {
+    function createBug(x, y) {
+      const bug = document.createElement('div');
+      bug.className = 'bug';
+      bug.style.left = x + 'px';
+      bug.style.top = y + 'px';
+      bug.innerHTML = `
+        <div class="bug-inner bobbing">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <ellipse cx="50" cy="52" rx="14" ry="18" fill="#2b2b2b" />
+            <rect x="46" y="40" width="8" height="6" rx="2" fill="#1f1f1f" />
+            <circle cx="50" cy="32" r="7" fill="#222" />
+            <g stroke="#1a1a1a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M34 44 q-8 -6 -12 -4"/>
+              <path d="M36 58 q-10 8 -12 12"/>
+              <path d="M66 44 q8 -6 12 -4"/>
+              <path d="M64 58 q10 8 12 12"/>
+              <path d="M50 26 q-5 -6 -8 -10"/>
+              <path d="M50 26 q5 -6 8 -10"/>
+            </g>
+          </svg>
+        </div>`;
+      bug.addEventListener('click', () => makeRipple(bug));
+      beer.appendChild(bug);
+    }
+
+    function makeRipple(bug) {
       const rect = beer.getBoundingClientRect();
-      const bugRect = bugEl.getBoundingClientRect();
+      const bugRect = bug.getBoundingClientRect();
       const ripple = document.createElement('div');
       ripple.className = 'ripple';
       ripple.style.width = ripple.style.height = bugRect.width + 'px';
@@ -92,6 +132,24 @@
       ripple.style.top = (bugRect.top - rect.top + bugRect.height/2) + 'px';
       beer.appendChild(ripple);
       ripple.addEventListener('animationend', () => ripple.remove());
+    }
+
+    bugEl.addEventListener('click', () => makeRipple(bugEl));
+
+    spawnBtn.addEventListener('click', () => {
+      const rect = beer.getBoundingClientRect();
+      const x = Math.random() * rect.width;
+      const y = Math.random() * rect.height;
+      createBug(x, y);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'e') {
+        const rect = beer.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        createBug(x, y);
+      }
     });
   </script>
 </body>
